@@ -1,0 +1,56 @@
+server:
+  port: 8090
+
+spring:
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/simple_database?currentSchema=user_storage'
+    username: dbuser
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update                                                    # отключает/включает автоматическое создание/обновление схемы (update, validate, create-drop)
+    # show-sql: true                                                      # выводит SQL-запросы в консоль
+    properties:
+      hibernate:
+        format_sql: true                                                  # форматирует SQL красиво
+        dialect: org.hibernate.dialect.PostgreSQLDialect                  # говорит Hibernate, как писать SQL именно под PostgreSQL
+    open-in-view: false                                                   #  закрывает EntityManager после запроса
+
+  liquibase:
+    enabled: true                                                         # активирует Liquibase
+    change-log: 'classpath:db/changelog/db.changelog-master.xml'
+    drop-first: false                                                     # не удалять схему перед миграцией
+
+  jackson:
+    serialization:
+      indent_output: true                                                 # делает JSON более читаемым
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: user-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.http.converter.json: DEBUG
+    org.apache.kafka.clients: WARN
+    org.apache.kafka.common.metrics: ERROR
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+    groups:
+      enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+  default-produces-media-type: application/json
