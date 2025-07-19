@@ -111,13 +111,15 @@ public class UserKafkaConsumer {
             Optional<User> userOpt = userRepository.findByOperationUuid(operationUuid);
             User user = userOpt.orElse(null);
 
+            // Устанавливаем новую фамилию
+            user.setLastName("Успех");
+
             // 2. Решается судьба пользователя (1 --> обновление проходит, 0 --> откат всей транзакции)
             int decision = new Random().nextInt(2);
-            Thread.sleep(5000);
+            Thread.sleep(8000);
             if (decision == 1) {
 
                 // Успешный случай — обновляем пользователя
-                user.setLastName("Успех");
                 userRepository.save(user);
 
                 log.info("Обновление прошло успешно, пользователь сохранен в базу с новыми данными: " + user.getFirstName() + " " + user.getLastName());
