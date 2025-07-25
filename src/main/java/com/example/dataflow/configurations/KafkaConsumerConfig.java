@@ -1,6 +1,6 @@
 package com.example.dataflow.configurations;
 
-import com.example.dataflow.repositories.SimpleUserDto;
+import com.example.dataflow.repositories.CommonDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, SimpleUserDto> userDtoConsumerFactory() {
+    public ConsumerFactory<String, CommonDto> userDtoConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "user-saga-group");
@@ -35,15 +35,15 @@ public class KafkaConsumerConfig {
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
 
         // Настройка для JsonDeserializer
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, SimpleUserDto.class.getName());
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, CommonDto.class.getName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*"); // Или конкретный пакет
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, SimpleUserDto> userDtoKafkaListenerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, SimpleUserDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, CommonDto> userDtoKafkaListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, CommonDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(userDtoConsumerFactory());
         return factory;
     }
