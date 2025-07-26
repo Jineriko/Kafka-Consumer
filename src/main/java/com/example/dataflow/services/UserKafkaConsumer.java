@@ -6,6 +6,7 @@ import com.example.dataflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -34,16 +35,19 @@ public class UserKafkaConsumer {
 
         log.info("Пользователь {} {} ", dto.getName(), dto.getLastname() + " успешно сохранен в базе");
 
+        CommonDto responseDto = new CommonDto();
+        BeanUtils.copyProperties(dto, responseDto);
+
         // Отправляем ответ
-        userDtoKafkaTemplate.send("user.dto.response", dto)
+        userDtoKafkaTemplate.send("user.dto.response", responseDto)
                 .addCallback(
                         result -> {
-                            log.info("Данные пользователя отправлены обратно: {} {}", dto.getName(), dto.getLastname());
-                            logService.log(dto.getOperatorId(), "SEND_SUCCESS", "Отправка обратно прошла успешно");
+                            log.info("Данные пользователя отправлены обратно: {} {}", responseDto.getName(), responseDto.getLastname());
+                            logService.log(responseDto.getOperatorId(), "SEND_SUCCESS", "Отправка обратно прошла успешно");
                         },
                         ex -> {
                             log.error("Ошибка при отправке: ", ex);
-                            logService.log(dto.getOperatorId(), "SEND_FAILURE", ex.getMessage());
+                            logService.log(responseDto.getOperatorId(), "SEND_FAILURE", ex.getMessage());
                         }
                 );
 
